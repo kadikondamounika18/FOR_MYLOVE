@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Will you be my Valentine?</title>
+  <style>
+    :root{
+      --bg:#fff0f5;
+      --card:#fff;
+      --accent:#ff6b9a;
+      --muted:#f7e9ef;
+      --text:#4b2a39;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      background: linear-gradient(180deg,#fff6fb 0%, #fff0f5 50%, #ffeef6 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .bg-photo{
+      position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(6px) saturate(110%);opacity:0.55;
+      background-image: url('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&q=80');
+    }
+    .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,240,247,0.55));z-index:1}
+    .container{
+      position:relative;z-index:2;min-height:100%;display:flex;align-items:center;justify-content:center;padding:36px;
+    }
+    .card{
+      background:rgba(255,255,255,0.9);
+      border-radius:18px;
+      box-shadow:0 10px 30px rgba(75,30,45,0.12);
+      padding:34px 36px;width:100%;max-width:720px;text-align:center;backdrop-filter: blur(6px);
+      border:1px solid rgba(255,230,240,0.6);
+    }
+    h1{margin:0;font-size:34px;letter-spacing:0.2px;color:#3b2030}
+    p.lead{margin-top:10px;margin-bottom:24px;color:#633444;min-height:30px;transition:opacity 0.3s ease;}
+    .fade{opacity:0;}
+    .heart-emoji {
+      font-size:80px;
+      animation: pulse 2s infinite ease-in-out;
+      filter: drop-shadow(0 0 10px rgba(255,105,135,0.6));
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    .buttons{margin-top:26px;display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+    button{
+      font-size:16px;padding:12px 22px;border-radius:999px;border:none;cursor:pointer;min-width:120px;font-weight:600;box-shadow:0 6px 14px rgba(75,30,45,0.08);
+    }
+    .yes{
+      background:linear-gradient(90deg,#ff7aa6,#ff4b84);color:white;transform:translateZ(0);
+    }
+    .no{
+      background:transparent;border:1.5px solid rgba(100,60,70,0.12);color:#693240;position:relative;transition:transform 300ms ease;z-index:3
+    }
+    .from{margin-top:18px;color:#7b4d5a;font-weight:600}
+    .floating-hearts{position:absolute;inset:0;pointer-events:none;z-index:0}
+    .floating-hearts i{position:absolute;opacity:0.85;font-style:normal;transform-origin:center;}
+    .success{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(20,8,12,0.18);z-index:50;backdrop-filter: blur(4px);opacity:0;pointer-events:none;transition:opacity 260ms}
+    .success.show{opacity:1;pointer-events:auto}
+    .success-card{background:white;padding:28px;border-radius:14px;text-align:center;max-width:520px;box-shadow:0 16px 40px rgba(60,20,40,0.18)}
+    .success-card h2{margin:0 0 8px 0}
+    .success-card p{margin:0 0 18px 0}
+    @media (max-width:480px){h1{font-size:24px}.heart-emoji{font-size:60px}button{min-width:110px}}
+  </style>
+</head>
+<body>
+  <div class="bg-photo" aria-hidden="true"></div>
+  <div class="overlay" aria-hidden="true"></div>
+  <div class="floating-hearts" id="floating"></div>
+
+  <main class="container">
+    <section class="card" role="main" aria-labelledby="title">
+      <div style="display:flex;align-items:center;gap:16px;justify-content:center;flex-direction:column;">
+        <div class="heart-emoji" aria-hidden="true">💖</div>
+        <h1 id="title">Will you be my Valentine?</h1>
+        <p class="lead" id="lead-text">I picked this little corner of the web just for you — soft hearts, warm wishes, and one tiny question.</p>
+
+        <div class="buttons">
+          <button class="yes" id="yesBtn">Yes 💖</button>
+          <button class="no" id="noBtn">No</button>
+        </div>
+
+        <div class="from">From <strong>Bujji</strong></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="success" id="success">
+    <div class="success-card" role="dialog" aria-modal="true">
+      <h2>Aww thank you 💕</h2>
+      <p>I love you - can't wait to make beautiful memories together.</p>
+      <button class="yes" id="closeSuccess">Aww, hug!</button>
+    </div>
+  </div>
+
+  <script>
+    const heartTexts = ['❤','💘','💕','💖','❣️'];
+    const floating = document.getElementById('floating');
+    function spawnHeart(){
+      const el = document.createElement('i');
+      el.textContent = heartTexts[Math.floor(Math.random()*heartTexts.length)];
+      const size = Math.random()*22 + 14;
+      el.style.fontSize = size+'px';
+      el.style.left = (Math.random()*100)+'%';
+      el.style.top = (Math.random()*60 + 10)+'%';
+      el.style.opacity = 0.9;
+      const dur = Math.random()*6000 + 4000;
+      floating.appendChild(el);
+      el.animate([
+        { transform: 'translateY(0) scale(1)', opacity:1 },
+        { transform: 'translateY(-120px) scale(1.1)', opacity:0 }
+      ],{duration:dur, easing:'ease-out', fill:'forwards'}).onfinish = ()=> el.remove();
+    }
+    setInterval(spawnHeart, 700);
+    for(let i=0;i<6;i++) setTimeout(spawnHeart, i*300);
+
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const leadText = document.getElementById('lead-text');
+
+    const noMessages = [
+      'Really? 😢',
+      'Are you sure? 🥺',
+      'Think again... 💔',
+      'You might break my heart 😭',
+      'One more chance? 💌',
+      'Come on... say yes! 💞',
+      'You can’t resist forever 😘'
+    ];
+    let noIndex = 0;
+
+    function moveNoRandom(){
+      const card = document.querySelector('.card').getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const padding = 12;
+      const maxX = Math.max(card.width - btnRect.width - padding, 10);
+      const maxY = Math.max(card.height - btnRect.height - padding, 10);
+      const x = Math.random()*maxX - (card.width/2 - btnRect.width/2);
+      const y = Math.random()*maxY - (card.height/2 - btnRect.height/2);
+      noBtn.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    noBtn.addEventListener('click', ()=>{
+      moveNoRandom();
+      leadText.classList.add('fade');
+      setTimeout(()=>{
+        leadText.textContent = noMessages[noIndex];
+        leadText.classList.remove('fade');
+      },150);
+      noIndex = (noIndex + 1) % noMessages.length;
+    });
+
+    yesBtn.addEventListener('click', ()=>{
+      document.getElementById('success').classList.add('show');
+      for(let i=0;i<30;i++) setTimeout(()=>{
+        const el = document.createElement('i');
+        el.textContent = heartTexts[Math.floor(Math.random()*heartTexts.length)];
+        el.style.position='fixed';
+        el.style.left = (50 + (Math.random()-0.5)*160)+'%';
+        el.style.top = (50 + (Math.random()-0.5)*40)+'%';
+        el.style.fontSize = (Math.random()*30+12)+'px';
+        el.style.transform = 'translate(-50%,-50%)';
+        el.style.zIndex = 9999;
+        document.body.appendChild(el);
+        el.animate([
+          { transform:'translateY(0) scale(1)', opacity:1 },
+          { transform:'translateY(-220px) scale(1.4)', opacity:0 }
+        ],{duration:1800+Math.random()*900,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish = ()=> el.remove();
+      }, i*30);
+    });
+
+    document.getElementById('closeSuccess').addEventListener('click', ()=>{
+      document.getElementById('success').classList.remove('show');
+    });
+  </script>
+</body>
+</html>
